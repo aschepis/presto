@@ -113,6 +113,7 @@
         <module>presto-testing-server-launcher</module>
         <module>presto-plugin-toolkit</module>
         <module>presto-resource-group-managers</module>
+        <module>presto-elasticsearch</module>
     </modules>
 
     <dependencyManagement>

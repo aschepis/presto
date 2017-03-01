@@ -17,8 +17,6 @@ import com.facebook.presto.spi.ColumnMetadata;
 import com.google.common.collect.ImmutableList;
 import org.testng.annotations.Test;
 
-import java.net.URI;
-
 import static com.facebook.presto.elasticsearch.MetadataUtil.TABLE_CODEC;
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;

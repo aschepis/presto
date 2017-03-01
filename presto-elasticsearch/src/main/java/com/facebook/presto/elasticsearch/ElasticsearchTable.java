@@ -18,7 +18,6 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.ImmutableList;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Objects;
 
@@ -75,7 +74,8 @@ public class ElasticsearchTable
     }
 
     @Override
-    public boolean equals(Object obj) {
+    public boolean equals(Object obj)
+    {
         if (this == obj) {
             return true;
         }
@@ -85,5 +85,11 @@ public class ElasticsearchTable
 
         ElasticsearchTable other = (ElasticsearchTable) obj;
         return Objects.equals(this.name, other.name);
+    }
+
+    @Override
+    public int hashCode()
+    {
+        return Objects.hash(name);
     }
 }

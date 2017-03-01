@@ -1,3 +1,17 @@
+/*
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.facebook.presto.elasticsearch;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -13,10 +27,8 @@ import java.util.Iterator;
 
 import static java.util.Objects.requireNonNull;
 
-/**
- * Created by aschepis on 2/2/17.
- */
-public class ElasticsearchScanAndScrollQuery {
+public class ElasticsearchScanAndScrollQuery
+{
     private final RestClient restClient;
     private final String indexName;
     private final String assetType;
@@ -24,7 +36,8 @@ public class ElasticsearchScanAndScrollQuery {
 
     private String scrollId;
 
-    public ElasticsearchScanAndScrollQuery(RestClient restClient, String indexName, String assetType) {
+    public ElasticsearchScanAndScrollQuery(RestClient restClient, String indexName, String assetType)
+    {
         requireNonNull(restClient, "restClient is null");
         requireNonNull(indexName, "indexName is null");
         requireNonNull(assetType, "assetType is null");
@@ -34,12 +47,14 @@ public class ElasticsearchScanAndScrollQuery {
         this.assetType = assetType;
     }
 
-    public boolean fetchNextPage() throws IOException {
+    public boolean fetchNextPage() throws IOException
+    {
         String path;
         if (scrollId == null) {
             // http://localhost:9200/1/AwsAccount/_search?q=_type:AwsAccount&scroll=1m&size=100
             path = String.format("/%s/%s/_search?q=_type:%s&size=1000&scroll=1m", indexName, assetType, assetType);
-        } else {
+        }
+        else {
             path = String.format("/_search/scroll?scroll=1m&scroll_id=%s", scrollId);
         }
 
@@ -53,11 +68,12 @@ public class ElasticsearchScanAndScrollQuery {
         scrollId = rootNode.get("_scroll_id").asText();
         recordIterator = hitListNode.iterator();
 
-        return hitListNode.isArray() && ((ArrayNode)hitListNode).size() > 0;
+        return hitListNode.isArray() && ((ArrayNode) hitListNode).size() > 0;
     }
 
-    public Iterator<JsonNode> getRecordIterator() throws IOException {
-        if(recordIterator == null) {
+    public Iterator<JsonNode> getRecordIterator() throws IOException
+    {
+        if (recordIterator == null) {
             fetchNextPage();
         }
 

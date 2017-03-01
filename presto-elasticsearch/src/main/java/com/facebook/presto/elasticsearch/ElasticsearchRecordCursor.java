@@ -14,27 +14,16 @@
 package com.facebook.presto.elasticsearch;
 
 import com.facebook.presto.spi.RecordCursor;
-import com.facebook.presto.spi.type.BigintType;
-import com.facebook.presto.spi.type.DateType;
 import com.facebook.presto.spi.type.Type;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.base.Throwables;
-import com.google.common.io.ByteSource;
-import com.google.common.io.CountingInputStream;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
-import org.apache.http.HttpEntity;
-import org.apache.http.util.EntityUtils;
-import org.elasticsearch.client.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import static com.facebook.presto.spi.type.BigintType.BIGINT;
 import static com.facebook.presto.spi.type.BooleanType.BOOLEAN;
@@ -42,7 +31,6 @@ import static com.facebook.presto.spi.type.DoubleType.DOUBLE;
 import static com.facebook.presto.spi.type.VarcharType.createUnboundedVarcharType;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class ElasticsearchRecordCursor
         implements RecordCursor
@@ -100,16 +88,17 @@ public class ElasticsearchRecordCursor
     public boolean advanceNextPosition()
     {
         try {
-            if(!query.getRecordIterator().hasNext()) {
+            if (!query.getRecordIterator().hasNext()) {
                 boolean hasNextPage = query.fetchNextPage();
-                if(!hasNextPage) {
+                if (!hasNextPage) {
                     return false;
                 }
             }
 
             currentRecord = query.getRecordIterator().next().get("_source");
             return true;
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             Throwables.propagate(e);
         }
         return false;

@@ -18,18 +18,11 @@ import com.facebook.presto.spi.RecordCursor;
 import com.facebook.presto.spi.RecordSet;
 import com.facebook.presto.spi.type.Type;
 import com.google.common.base.CaseFormat;
-import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
-import com.google.common.io.ByteSource;
-import com.google.common.io.Resources;
 import org.apache.http.HttpHost;
-import org.apache.http.util.EntityUtils;
-import org.elasticsearch.client.Response;
 import org.elasticsearch.client.RestClient;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,7 +36,8 @@ public class ElasticsearchRecordSet
     private final List<Type> columnTypes;
     private final ElasticsearchScanAndScrollQuery query;
 
-    public ElasticsearchRecordSet(ElasticsearchSplit split, List<ElasticsearchColumnHandle> columnHandles) throws IOException {
+    public ElasticsearchRecordSet(ElasticsearchSplit split, List<ElasticsearchColumnHandle> columnHandles) throws IOException
+    {
         requireNonNull(split, "split is null");
 
         this.columnHandles = requireNonNull(columnHandles, "column handles is null");

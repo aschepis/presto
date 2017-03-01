@@ -11,11 +11,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.facebook.presto.elasticsearch;
 
-import com.facebook.presto.spi.type.*;
+import com.facebook.presto.spi.type.BigintType;
+import com.facebook.presto.spi.type.BooleanType;
+import com.facebook.presto.spi.type.DoubleType;
+import com.facebook.presto.spi.type.IntegerType;
+import com.facebook.presto.spi.type.Type;
+import com.facebook.presto.spi.type.VarcharType;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.CaseFormat;
 import com.google.common.base.Function;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
@@ -23,34 +30,30 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.io.Resources;
-import io.airlift.json.JsonCodec;
+
+import org.apache.http.HttpHost;
+import org.apache.http.util.EntityUtils;
+import org.elasticsearch.client.Response;
+import org.elasticsearch.client.RestClient;
 
 import javax.inject.Inject;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Maps.transformValues;
 import static com.google.common.collect.Maps.uniqueIndex;
-import static io.airlift.json.JsonCodec.jsonCodec;
-import static io.airlift.json.JsonCodec.mapJsonCodec;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.requireNonNull;
-
-import org.apache.http.HttpEntity;
-import org.apache.http.HttpHost;
-import org.apache.http.entity.ContentType;
-import org.apache.http.nio.entity.NStringEntity;
-import org.apache.http.util.EntityUtils;
-import org.elasticsearch.client.Response;
-import org.elasticsearch.client.RestClient;
-import org.elasticsearch.client.RestClientBuilder;
-import org.weakref.jmx.internal.guava.base.CaseFormat;
 
 public class ElasticsearchClient
 {
@@ -70,7 +73,8 @@ public class ElasticsearchClient
         schemas = Suppliers.memoize(schemasSupplier(config.getMetadata()));
     }
 
-    public URI getMetadataURI() {
+    public URI getMetadataURI()
+    {
         return config.getMetadata();
     }
 
@@ -102,7 +106,8 @@ public class ElasticsearchClient
 
     private static Supplier<Map<String, Map<String, ElasticsearchTable>>> schemasSupplier(final URI metadataUri)
     {
-        return () -> {
+        return () ->
+        {
             try {
                 return lookupSchemas(metadataUri);
             }
@@ -135,7 +140,7 @@ public class ElasticsearchClient
         while (it.hasNext()) {
             Map.Entry<String, JsonNode> e = (Map.Entry<String, JsonNode>) it.next();
             String indexName = e.getKey();
-            if(!indexName.matches(re)) {
+            if (!indexName.matches(re)) {
                 continue;
             }
             JsonNode indexNode = e.getValue();
@@ -148,9 +153,9 @@ public class ElasticsearchClient
         ImmutableMap.Builder<String, List<ElasticsearchTable>> catalog = new ImmutableMap.Builder<String, List<ElasticsearchTable>>();
         List<ElasticsearchTable> schemaTables = new ArrayList<ElasticsearchTable>();
 
-        for(ElasticsearchIndex esIndex : indexList) {
-            for(ElasticsearchTable table : esIndex.getTables()) {
-                if(!schemaTables.contains(table)) {
+        for (ElasticsearchIndex esIndex : indexList) {
+            for (ElasticsearchTable table : esIndex.getTables()) {
+                if (!schemaTables.contains(table)) {
                     schemaTables.add(table);
                 }
             }
@@ -165,7 +170,8 @@ public class ElasticsearchClient
         return ImmutableMap.copyOf(transformValues(catalog.build(), resolveAndIndexTables(metadataUri)));
     }
 
-    private static ElasticsearchIndex readIndex(String indexName, JsonNode indexNode) {
+    private static ElasticsearchIndex readIndex(String indexName, JsonNode indexNode)
+    {
         ElasticsearchIndex index = new ElasticsearchIndex(indexName);
 
         ImmutableList.Builder<ElasticsearchTable> esTables = new ImmutableList.Builder<ElasticsearchTable>();
@@ -186,7 +192,8 @@ public class ElasticsearchClient
         return index;
     }
 
-    private static ElasticsearchTable readTable(String tableName, JsonNode tableNode) {
+    private static ElasticsearchTable readTable(String tableName, JsonNode tableNode)
+    {
         JsonNode propertiesNode = tableNode.get("properties");
 
         ImmutableList.Builder<ElasticsearchColumn> columns = new ImmutableList.Builder<ElasticsearchColumn>();
@@ -206,8 +213,9 @@ public class ElasticsearchClient
         return new ElasticsearchTable(tableName, columns.build());
     }
 
-    private static Type convertPropType(String propType) {
-        switch(propType.toLowerCase()) {
+    private static Type convertPropType(String propType)
+    {
+        switch (propType.toLowerCase()) {
             case "integer":
                 return IntegerType.INTEGER;
             case "long":
@@ -227,7 +235,8 @@ public class ElasticsearchClient
 
     private static Function<List<ElasticsearchTable>, Map<String, ElasticsearchTable>> resolveAndIndexTables(final URI metadataUri)
     {
-        return tables -> {
+        return tables ->
+        {
             Iterable<ElasticsearchTable> resolvedTables = transform(tables, tableUriResolver(metadataUri));
             return ImmutableMap.copyOf(uniqueIndex(resolvedTables, ElasticsearchTable::getName));
         };
@@ -235,7 +244,8 @@ public class ElasticsearchClient
 
     private static Function<ElasticsearchTable, ElasticsearchTable> tableUriResolver(final URI baseUri)
     {
-        return table -> {
+        return table ->
+        {
             return new ElasticsearchTable(table.getName(), table.getColumns());
         };
     }

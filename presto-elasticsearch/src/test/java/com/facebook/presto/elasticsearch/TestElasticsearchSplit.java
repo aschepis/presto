@@ -13,21 +13,14 @@
  */
 package com.facebook.presto.elasticsearch;
 
-import com.facebook.presto.spi.HostAddress;
-import com.google.common.collect.ImmutableList;
-import io.airlift.json.JsonCodec;
-import org.testng.annotations.Test;
-
 import java.net.URI;
 import java.net.URISyntaxException;
-
-import static io.airlift.json.JsonCodec.jsonCodec;
-import static org.testng.Assert.assertEquals;
 
 public class TestElasticsearchSplit
 {
     private final ElasticsearchSplit split = new ElasticsearchSplit("connectorId", "schemaName", "tableName", new URI("http://localhost:9200"));
 
-    public TestElasticsearchSplit() throws URISyntaxException {
+    public TestElasticsearchSplit() throws URISyntaxException
+    {
     }
 }

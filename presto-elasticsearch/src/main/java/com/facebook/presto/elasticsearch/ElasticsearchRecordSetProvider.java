@@ -55,7 +55,8 @@ public class ElasticsearchRecordSetProvider
 
         try {
             return new ElasticsearchRecordSet(elasticsearchSplit, handles.build());
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
             e.printStackTrace();
         }
 
